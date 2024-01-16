@@ -1,0 +1,11 @@
+name: Legendores
+version: '${project.version}'
+main: me.smathy.legendores.Legendores
+api-version: 1.20
+authors: [ Sparky2you ]
+description: The official LegendOres plugin!
+commands:
+  ench:
+    description: Enables player to enchant his items using Minecraft levels.
+  pack:
+    description: Shows the ressource pack link.
