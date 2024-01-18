@@ -1,9 +1,12 @@
 package me.smathy.legendores;
 
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
@@ -15,10 +18,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class Legendores extends JavaPlugin implements Listener {
+
+    private static final String FIRST_JOIN_METADATA_KEY = "LegendOresFirstJoin";
 
     @Override
     public void onEnable() {
@@ -40,8 +46,15 @@ public final class Legendores extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        event.setJoinMessage(null);
-        getServer().broadcastMessage(ChatColor.GREEN + "+ " + event.getPlayer().getName());
+        String playerName = event.getPlayer().getName();
+        if (!event.getPlayer().hasPlayedBefore()) {
+            event.setJoinMessage(null);
+            event.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "Welcome! This is your first time joining!");
+            event.getPlayer().setMetadata(FIRST_JOIN_METADATA_KEY, new FixedMetadataValue(this, true));
+        } else {
+            event.setJoinMessage(null);
+            getServer().broadcastMessage(ChatColor.GREEN + "+ " + playerName);
+        }
     }
 
     @EventHandler
@@ -199,7 +212,7 @@ public final class Legendores extends JavaPlugin implements Listener {
                                 player.sendMessage(ChatColor.RED + "You can only enchant this on armor.");
                                 return true;
                             }
-                        } else if (args[0] == "durability") {
+                        } else if ("durability".equalsIgnoreCase(args[0])) {
                             if (isArmor(itemInHand) || isTool(itemInHand)) {
                                 if ("1".equals(args[1]) || "2".equals(args[1]) || "3".equals(args[1]) || "4".equals(args[1])) {
                                     Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft("durability"));
@@ -252,7 +265,7 @@ public final class Legendores extends JavaPlugin implements Listener {
                                 player.sendMessage(ChatColor.RED + "You can't enchant this item if it isn't armor or a tool.");
                                 return true;
                             }
-                        } else if (args[0] == "efficiency") {
+                        } else if ("efficiency".equalsIgnoreCase(args[0])) {
                             if (isTool(itemInHand)) {
                                 if ("1".equals(args[1]) || "2".equals(args[1]) || "3".equals(args[1]) || "4".equals(args[1])) {
                                     Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft("efficiency"));
@@ -305,7 +318,7 @@ public final class Legendores extends JavaPlugin implements Listener {
                                 player.sendMessage(ChatColor.RED + "You can only enchant this on tools.");
                                 return true;
                             }
-                        } else if (args[0] == "flame") {
+                        } else if ("flame".equalsIgnoreCase(args[0])) {
                             Material material = itemInHand.getType();
                             if (material == Material.BOW) {
                                 if ("1".equals(args[1]) || "2".equals(args[1]) || "3".equals(args[1]) || "4".equals(args[1])) {
@@ -359,7 +372,7 @@ public final class Legendores extends JavaPlugin implements Listener {
                                 player.sendMessage(ChatColor.RED + "You can only enchant this on a bow.");
                                 return true;
                             }
-                        } else if (args[0] == "fortune") {
+                        } else if ("fortune".equalsIgnoreCase(args[0])) {
                             if (isPickaxe(itemInHand)) {
                                 if ("1".equals(args[1]) || "2".equals(args[1]) || "3".equals(args[1]) || "4".equals(args[1])) {
                                     Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft("fortune"));
@@ -412,7 +425,7 @@ public final class Legendores extends JavaPlugin implements Listener {
                                 player.sendMessage(ChatColor.RED + "You can only enchant this on a bow.");
                                 return true;
                             }
-                        } else if (args[0] == "protect") {
+                        } else if ("protect".equalsIgnoreCase(args[0])) {
                             if (isArmor(itemInHand)) {
                                 if ("1".equals(args[1]) || "2".equals(args[1]) || "3".equals(args[1]) || "4".equals(args[1])) {
                                     Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft("protect"));
@@ -505,5 +518,33 @@ public final class Legendores extends JavaPlugin implements Listener {
             completions.add("4");
         }
         return completions;
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (!event.isCancelled() && event.getPlayer() != null) {
+            if (event.getBlock().getType().equals(Material.ACACIA_WOOD)) {
+                event.setCancelled(true);
+                event.getPlayer().getInventory().addItem(new ItemStack(Material.ACACIA_WOOD));
+            } else if (event.getBlock().getType().equals(Material.STONE)) {
+                event.setCancelled(true);
+                event.getPlayer().getInventory().addItem(new ItemStack(Material.STONE));
+            } else if (event.getBlock().getType().equals(Material.EMERALD_ORE)) {
+                event.setCancelled(true);
+                event.getPlayer().getInventory().addItem(new ItemStack(Material.EMERALD_ORE));
+            } else if (event.getBlock().getType().equals(Material.COAL_ORE)) {
+                event.setCancelled(true);
+                event.getPlayer().getInventory().addItem(new ItemStack(Material.COAL_ORE));
+            } else if (event.getBlock().getType().equals(Material.REDSTONE_ORE)) {
+                event.setCancelled(true);
+                event.getPlayer().getInventory().addItem(new ItemStack(Material.REDSTONE_ORE));
+            } else if (event.getBlock().getType().equals(Material.LAPIS_ORE)) {
+                event.setCancelled(true);
+                event.getPlayer().getInventory().addItem(new ItemStack(Material.LAPIS_ORE));
+            } else if (event.getBlock().getType().equals(Material.OBSIDIAN)) {
+                event.setCancelled(true);
+                event.getPlayer().getInventory().addItem(new ItemStack(Material.OBSIDIAN));
+            }
+        }
     }
 }
