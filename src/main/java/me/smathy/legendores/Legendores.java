@@ -1,9 +1,8 @@
 package me.smathy.legendores;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,7 +17,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +24,13 @@ public final class Legendores extends JavaPlugin implements Listener {
 
     private static final String FIRST_JOIN_METADATA_KEY = "LegendOresFirstJoin";
 
-    @Override
-    public void onEnable() {
-        System.out.println("|---------------------------------|");
-        System.out.println("| LegendOres plugin just enabled! |");
-        System.out.println("|---------------------------------|");
+    public void onEnable(Legendores plugin) {
+        FileConfiguration config = plugin.getConfig();
+        String onLoadMessage = config.getString("options.onLoadMessage");
+        System.out.println(onLoadMessage);
         getCommand("ench").setExecutor(this);
         getCommand("ench").setTabCompleter(this);
+        getCommand("updatepack").setExecutor(this);
         getCommand("pack").setExecutor(this);
         getServer().getPluginManager().registerEvents(this, this);
     }
@@ -47,13 +45,21 @@ public final class Legendores extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         String playerName = event.getPlayer().getName();
+        event.getPlayer().sendMessage("1");
         if (!event.getPlayer().hasPlayedBefore()) {
+            event.getPlayer().sendMessage("2");
             event.setJoinMessage(null);
+            event.getPlayer().sendMessage("3");
             event.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "Welcome! This is your first time joining!");
+            event.getPlayer().sendMessage("4");
             event.getPlayer().setMetadata(FIRST_JOIN_METADATA_KEY, new FixedMetadataValue(this, true));
+            event.getPlayer().sendMessage("5");
         } else {
+            event.getPlayer().sendMessage("6");
             event.setJoinMessage(null);
+            event.getPlayer().sendMessage("7");
             getServer().broadcastMessage(ChatColor.GREEN + "+ " + playerName);
+            event.getPlayer().sendMessage("8");
         }
     }
 
@@ -151,6 +157,8 @@ public final class Legendores extends JavaPlugin implements Listener {
         // Check if the item has enchantments
         return itemMeta.hasEnchants();
     }
+
+    private String link = null;
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         Player player = (Player) sender;
@@ -491,12 +499,23 @@ public final class Legendores extends JavaPlugin implements Listener {
                 player.sendMessage(ChatColor.RED + "You can't enchant air!");
             }
             return false;
+        } else if ("updatepack".equalsIgnoreCase(cmd.getName())) {
+            if (player.isOp()) {
+                if (args.length > 0) {
+                    link = args[0];
+                    player.sendMessage(ChatColor.GREEN + "Pack link set to: " + ChatColor.BLUE + link);
+                } else {
+                    player.sendMessage(ChatColor.RED + "Usage: /updatepack <pack_link>");
+                }
+                return true;
+            } else {
+                player.sendMessage(ChatColor.RED + "You can't use this command!");
+                return true;
+            }
         } else if ("pack".equalsIgnoreCase(cmd.getName())) {
-            String link = "https://download.mc-packs.net/pack/78843aa98003904670400a245855116cc248594a.zip";
             String message = ChatColor.GREEN + "Here is the link of the pack: " + ChatColor.BLUE + link;
-
             player.sendMessage(message);
-            return false;
+            return true;
         }
         return false;
     }
@@ -518,33 +537,5 @@ public final class Legendores extends JavaPlugin implements Listener {
             completions.add("4");
         }
         return completions;
-    }
-
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (!event.isCancelled() && event.getPlayer() != null) {
-            if (event.getBlock().getType().equals(Material.ACACIA_WOOD)) {
-                event.setCancelled(true);
-                event.getPlayer().getInventory().addItem(new ItemStack(Material.ACACIA_WOOD));
-            } else if (event.getBlock().getType().equals(Material.STONE)) {
-                event.setCancelled(true);
-                event.getPlayer().getInventory().addItem(new ItemStack(Material.STONE));
-            } else if (event.getBlock().getType().equals(Material.EMERALD_ORE)) {
-                event.setCancelled(true);
-                event.getPlayer().getInventory().addItem(new ItemStack(Material.EMERALD_ORE));
-            } else if (event.getBlock().getType().equals(Material.COAL_ORE)) {
-                event.setCancelled(true);
-                event.getPlayer().getInventory().addItem(new ItemStack(Material.COAL_ORE));
-            } else if (event.getBlock().getType().equals(Material.REDSTONE_ORE)) {
-                event.setCancelled(true);
-                event.getPlayer().getInventory().addItem(new ItemStack(Material.REDSTONE_ORE));
-            } else if (event.getBlock().getType().equals(Material.LAPIS_ORE)) {
-                event.setCancelled(true);
-                event.getPlayer().getInventory().addItem(new ItemStack(Material.LAPIS_ORE));
-            } else if (event.getBlock().getType().equals(Material.OBSIDIAN)) {
-                event.setCancelled(true);
-                event.getPlayer().getInventory().addItem(new ItemStack(Material.OBSIDIAN));
-            }
-        }
     }
 }

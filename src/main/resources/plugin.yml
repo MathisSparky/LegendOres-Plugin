@@ -9,3 +9,5 @@ commands:
     description: Enables player to enchant his items using Minecraft levels.
   pack:
     description: Shows the ressource pack link.
+  updatepack:
+    description: Update the ressource pack link.
