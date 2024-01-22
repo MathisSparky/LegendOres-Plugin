@@ -513,9 +513,19 @@ public final class Legendores extends JavaPlugin implements Listener {
                 return true;
             }
         } else if ("pack".equalsIgnoreCase(cmd.getName())) {
-            String message = ChatColor.GREEN + "Here is the link of the pack: " + ChatColor.BLUE + link;
-            player.sendMessage(message);
-            return true;
+            if (link != null) {
+                String message = ChatColor.GREEN + "Here is the link of the pack: " + ChatColor.BLUE + link;
+                player.sendMessage(message);
+                return true;
+            } else {
+                if (player.isOp()) {
+                    player.sendMessage(ChatColor.RED + "You should set a link for the pack using /updatepack <link>.");
+                    return false;
+                } else {
+                    player.sendMessage(ChatColor.RED + "Error: Please ask a staff member to update the pack link.");
+                    return false;
+                }
+            }
         }
         return false;
     }
